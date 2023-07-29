@@ -1,0 +1,42 @@
+--- #playbook that installs, starts, and enables nginx on host1
+  - name: Play book that installs n starts nginx
+    hosts: host1
+    tasks:
+      - name: install epel-release  #install epel-release first 
+        yum:
+          name: epel-release
+          state: latest
+      
+      - name: install nginx # installs nginx
+        yum:
+          name: nginx 
+          state: latest
+
+      - name: start nginx and enable it #enables nginx
+        systemd: 
+          state: started
+          name: nginx 
+          enabled: yes # for nginx to start i had to stop and disable httpd 
+      
+      - name: create custom html.index
+        file:
+          path: /usr/share/nginx/html/index.html #path for nginx /usr/share/nginx/html file
+          state: touch
+          owner: nginx
+          group: nginx
+          mode: 0644
+
+      - name: write custom data in html file   #and i also disabled my SELinux
+        copy:
+          content: |
+            <!DOCTYPE html>
+            <html>
+            <body>
+
+              <h1>My Awesome Web Page!</h1>
+              <p>It worked.</p>
+
+            </body>
+            </html>
+          dest: /usr/share/nginx/html/index.html #this is the destination for the data copied into index.html
+          
